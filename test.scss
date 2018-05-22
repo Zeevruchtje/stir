@@ -1,0 +1,25 @@
+$enable-typography: true;
+
+@import "scss/stir";
+
+html {
+    font-family: Avenir;
+    color: #121212;
+}
+
+.block:nth-child(odd) {
+    background-color: #aee7d2;
+}
+
+.high-col {
+    padding-bottom: 20px;
+}
+
+.abs-centering-example {
+    height: 340px;
+    background-color: #fff;
+}
+
+.abs-centering-example div {
+    background-color: #aee7d2;
+} 

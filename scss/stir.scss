@@ -1,0 +1,287 @@
+//  Stir v0.9.1
+//  Licensed under MIT
+//
+//  Author: Rick
+//  Website: https://stir.rickvanzee.nl
+
+/* Stir start */
+
+@charset "UTF-8";
+
+@import 'functions';
+@import 'variables';
+@import 'mixins';
+
+// --------------
+// Base styling
+// --------------
+
+html, body {
+    margin: 0;
+    min-height: 100%;
+}
+
+*, *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@if $enable-typography {
+    @if in-map($font-size-unit, (em, rem)) == false {
+        @error 'The variable $font-size-unit must either be em or rem';
+    }
+
+    html {
+        font-size: $default-font-size;
+    }
+
+    body {
+        font-size: 1rem;
+    }
+
+    @include heading-scaling($font-scale-ratio);
+}
+
+table {
+    border-spacing: 0;
+}
+
+input[type="submit"], input[type="button"], button, .btn {
+    border-radius: 0;
+    display: inline-block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+// --------------
+// Wrappers
+// --------------
+
+.block, .block-top, .block-bottom {
+    display: block;
+    position: static;
+}
+
+.block {
+    padding-top: $block-padding;
+    padding-bottom: $block-padding;
+}
+
+.block-top {
+    padding-top: $block-padding;
+}
+
+.block-bottom {
+    padding-bottom: $block-padding;
+}
+
+%containers {
+    display: block;
+    position: static;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: $max-container-width;
+    // padding-left: $default-column-gap;
+    // padding-right: $default-column-gap;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@include containers($extend: '%containers');
+
+.clear {
+    &:after {
+        content: " ";
+        clear: both;
+        display: table;
+    }
+}
+
+%grid {
+    @extend .clear;
+
+    display: block;
+    position: static;
+    padding-left: 0;
+    padding-right: 0;
+    list-style-type: none;
+}
+
+@include grids($extend: '%grid');
+
+.fx-grid {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+
+    &:after {
+        content: none;
+        visibility: visible;
+        height: auto;
+        clear: none;
+    }
+}
+
+.fx-line {
+    -ms-flex-wrap: nowrap;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+// --------------
+// Columns
+// --------------
+
+%cols {
+    float: left;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding-left: $default-column-gap;
+    padding-right: $default-column-gap;
+}
+
+@include columns($extend: '%cols');
+
+@include col-clearfixes();
+
+@if $max-auto-columns > 1 {
+    .col-a {
+        @extend %cols;
+    }
+
+    * {
+        > .col-a {
+            width: 100%;
+            flex-grow: 1;
+        }
+        @for $i from 2 through $max-auto-columns {
+            > .col-a:nth-last-child(#{$i}):first-child, > .col-a:nth-last-child(#{$i}):first-child ~ .col-a {
+                width: 100% / $i;
+            }
+        }
+    }
+}
+
+// --------------
+// Helpers
+// --------------
+
+@include floats();
+
+@include visibility-classes();
+
+%noMarginTop {
+    margin-top: 0;
+}
+
+%noMarginBottom {
+    margin-bottom: 0;
+}
+
+@each $tag in h1, h2, h3, h4, h5, h6, p, span, strong, ul, ol, hr, del, ins, table, sub, sup {
+    .textual > #{$tag}:first-child, .rtextual #{$tag}:first-child, .textual-top > #{$tag}:first-child, .rtextual-top #{$tag}:first-child {
+        @extend %noMarginTop;
+    }
+    .textual > #{$tag}:last-child, .rtextual #{$tag}:last-child, .textual-bottom > #{$tag}:last-child, .rtextual-bottom #{$tag}:last-child {
+        @extend %noMarginBottom;
+    }
+}
+
+.bg-cover {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100% 100%;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.rel {
+    position: relative;
+}
+
+// .abs-vctr {
+//
+// }
+//
+// .abs-hctr {
+//     position: absolute;
+//     left: 0;
+//     right: 0;
+//     margin-left: auto;
+//     margin-right: auto;
+// }
+//
+// .abs-ctr {
+//     @extend .abs-vctr;
+//     @extend .abs-hctr;
+// }
+
+// --------------
+// Media queries
+// --------------
+
+@if map-empty($responsivity) == false {
+    // TODO: You know what
+    @if $max-container-width > calculate-breakpoint-px(map-nth($responsivity, 0, true))
+        and ($container-jumps or map-get(map-nth($responsivity, 0), 'container-jump'))
+        and map-get(map-nth($responsivity, 0), 'container-jump') != false {
+        @include media-query-down($max-container-width + $scrollbar-width) {
+            [class^="container"] {
+                max-width: map-get(map-nth($responsivity, 0), 'breakpoint');
+            }
+        }
+    }
+}
+
+@each $key, $item in $responsivity {
+    @include media-query-down($key) {
+        @if ($container-jumps or map-get($item, 'container-jump')) and map-get($item, 'container-jump') != false and map-after($responsivity, $key) {
+            [class^="container"] {
+                max-width: map-get(map-after($responsivity, $key), 'breakpoint');
+            }
+        }
+
+        @if $enable-typography {
+            @if map-get($item, 'font-size') {
+                html {
+                    font-size: map-get($item, 'font-size');
+                }
+            }
+
+            @if map-get($item, 'font-scale-ratio') {
+                @include heading-scaling(map-get($item, 'font-scale-ratio'));
+            }
+        }
+
+        @include floats($key);
+        @include containers($key);
+        @include columns($key);
+        @include col-clearfixes($key);
+        @include visibility-classes($key);
+    }
+}
+
+/* Stir end */
