@@ -1,0 +1,7 @@
+@mixin _heading-scaling($font-scale-ratio) {
+    @for $i from 1 through 6 {
+        h#{$i}, .h#{$i} {
+            font-size: decimal-round(pow($font-scale-ratio, 7 - $i), 2) + $font-size-unit;
+        }
+    }
+}

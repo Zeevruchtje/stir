@@ -1,0 +1,32 @@
+@function decimal-round($value, $decimals, $mode: 'round') {
+    $exponent: pow(10, $decimals);
+
+    @if has-value($mode, ('round', 'ceil', 'floor')) {
+        @return call(get-function($mode), $value * $exponent) / $exponent;
+    }
+
+    @warn '#{$mode} is not a valid mode';
+    @return $result;
+}
+
+@function pow($number, $exponent) {
+    $return: 1;
+
+    @if $exponent > 0 {
+        @for $i from 1 through $exponent {
+            $return: $return * $number;
+        }
+    }
+
+    @return $return;
+}
+
+@function get-gcm($numerator, $denominator) {
+    @return if($denominator == 0, $numerator, get-gcm($denominator, $numerator % $denominator));
+}
+
+@function _calculate-breakpoint-px($char) {
+    $breakpoint: map-get($responsivity, $char);
+
+    @return map-get($breakpoint, 'breakpoint') + $scrollbar-width;
+}

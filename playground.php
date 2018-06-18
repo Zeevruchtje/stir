@@ -3,7 +3,41 @@
     <head>
         <meta charset="utf-8">
         <title>Playing with stir</title>
-        <link rel='stylesheet' href='test.css' />
+        <!--<link rel='stylesheet' href='test.css' />-->
+        <link rel='stylesheet' href='css/stir.css' />
+        <style media="screen">
+            html {
+                font-family: Avenir;
+                color: #121212;
+            }
+
+            .block:nth-child(odd) {
+                background-color: #aee7d2;
+            }
+
+            .high-col {
+                padding-bottom: 20px;
+            }
+
+            .abs-centering-example {
+                height: 340px;
+                background-color: #fff;
+            }
+
+            .abs-centering-example div {
+                background-color: #aee7d2;
+            }
+            [class*="overlay"] {
+                background-color: #db9fe6;
+            }
+            .rel-height {
+                background-color:#efa8ab;
+            }
+
+            .rel-height > * {
+                background-color: #f5db92;
+            }
+        </style>
     </head>
     <body>
         <div class="block">
@@ -46,6 +80,19 @@
                     </div>
                 <?php endfor; ?>
             </div>
+
+            <div class="grid auto-cols">
+                <div class="col mcol-f">
+
+                </div>
+            </div>
+
+            <div class="grid auto-cols">
+                <div class="col-f mcol">
+
+                </div>
+            </div>
+
         </div>
         <div class="block">
             <div class="container textual-top">
@@ -91,6 +138,115 @@
                     <div class="col-3">Flex</div>
                     <div class="col-3">Flex</div>
                     <div class="col-3">Flex</div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="container textual">
+                <h2>Auto cols naar harde cols, vanaf col-a</h2>
+                <div class="grid">
+                    <div class="col-a lcol-f mcol-a scol-4">
+                        >:C
+                    </div>
+                    <div class="col-a lcol-2 mcol-a scol-4">
+                        >:C
+                    </div>
+                    <div class="col-a lcol-2 mcol-a scol-4">
+                        >:C
+                    </div>
+                </div>
+                <h2>Vanaf col-f</h2>
+                <div class="grid">
+                    <div class="col-f mcol-a tcol-4">
+                        >:C
+                    </div>
+                    <div class="col-f mcol-a tcol-4">
+                        >:C
+                    </div>
+                    <div class="col-f mcol-a tcol-4">
+                        >:C
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="container textual">
+                <h2>Grid buiten container</h2>
+                <div class="grid20">
+                    <div class="col-3">
+                        :)
+                    </div>
+                    <div class="col-3">
+                        :)
+                    </div>
+                    <div class="col-3">
+                        :)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="container textual">
+                <h2>Overlay testjes</h2>
+                <div class="grid">
+                    <div class="col-3 rel">
+                        <div class="overlay">
+                            Hey
+                        </div>
+                        -<br>
+                        -<br>
+                        -<br>
+                        -<br>
+                        -
+                    </div>
+                    <div class="col-3 rel">
+                        <div class="inner-overlay">
+                            Hey
+                        </div>
+                        -<br>
+                        -<br>
+                        -<br>
+                        -<br>
+                        -
+                    </div>
+                    <div class="col-3">
+                        <div class="grid20">
+                            <div class="col-1 rel">
+                                asdf
+                                <div class="inner-overlay">
+                                    Hey
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="container trim">
+                <h2>Rel heights</h2>
+                <div class="grid">
+                    <div class="col-3">
+                        <div class="rel-height">
+                            <div class="col-f">
+                                Omg ben vierkant
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="rel-height">
+                            <div class="col-f">
+                                Omg ben vierkant
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="rel-height">
+                            <div class="col-f">
+                                Omg ben vierkant
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

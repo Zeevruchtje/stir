@@ -1,0 +1,87 @@
+@mixin media-query($from, $to: null) {
+    @if _is-breakpoint-char($from) and _is-breakpoint-char($to)
+        and map-get(map-get($responsivity, $from), 'breakpoint') < map-get(map-get($responsivity, $to), 'breakpoint') {
+        $prev-from: $from;
+        $from: $to;
+        $to: $prev-from;
+    }
+
+    @if _is-breakpoint-char($from) {
+        $from: _calculate-breakpoint-px($from);
+    }
+
+    @if $to == null {
+        @media screen and (max-width: $from) { @content; }
+    }
+    @else {
+        @if _is-breakpoint-char($to) {
+            $to: _calculate-breakpoint-px($to) + 1px;
+        }
+
+        @media screen and (max-width: $from) and (min-width: $to) { @content; }
+    }
+}
+
+@mixin media-query-above($from) {
+    @if _is-breakpoint-char($from) {
+        $from: _calculate-breakpoint-px($from);
+    }
+
+    $from: $from + 1px;
+
+    @media screen and (min-width: $from) { @content; }
+}
+
+@mixin media-query-below($from) {
+    @include media-query($from) {
+        @content;
+    }
+}
+
+@mixin above($from) {
+    @include media-query-above($from) {
+        @content;
+    }
+}
+
+@mixin below($from) {
+    @include media-query-below($from) {
+        @content;
+    }
+}
+
+@mixin adaptive-background($full-size-url, $images) {
+    @if type-of($images) != 'map' {
+        @error "$images must be a map";
+    }
+
+    @if empty($images) {
+        @error "$images must contain at least 1 item";
+    }
+
+    $img-data: [];
+
+    @each $from, $img in $images {
+        $img-data: append($img-data, (
+            'break-at': if(_is-breakpoint-char($from), _calculate-breakpoint-px($from), $from),
+            'img': $img
+        ));
+    }
+
+    $img-data: sort-by-columns($img-data, 'break-at', 'descending');
+
+    @each $item in $img-data {
+        $index: index($img-data, $item);
+
+        @if $index == 1 {
+            @include above(map-get($item, 'break-at')) {
+                background-image: url("#{$full-size-url}");
+            }
+        }
+
+        @include media-query(map-get($item, 'break-at'), if($index < length($img-data), map-get(nth($img-data, $index + 1), 'break-at'), null)) {
+            background-image: url("#{map-get($item, 'img')}");
+        }
+    }
+
+}

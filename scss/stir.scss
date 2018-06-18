@@ -1,4 +1,4 @@
-//  Stir v0.9.1
+//  Stir v0.10
 //  Licensed under MIT
 //
 //  Author: Rick
@@ -16,9 +16,18 @@
 // Base styling
 // --------------
 
-html, body {
+html {
+    height: 100%;
+}
+
+body {
     margin: 0;
     min-height: 100%;
+
+    // Prevent any horizontal scrollbars, which could happen when you have
+    // a grid in a container where the gap size of the container is smaller
+    // than the grid's
+    overflow-x: hidden;
 }
 
 *, *:before, *:after {
@@ -28,7 +37,7 @@ html, body {
 }
 
 @if $enable-typography {
-    @if in-map($font-size-unit, (em, rem)) == false {
+    @if has-value($font-size-unit, (em, rem)) == false {
         @error 'The variable $font-size-unit must either be em or rem';
     }
 
@@ -40,16 +49,18 @@ html, body {
         font-size: 1rem;
     }
 
-    @include heading-scaling($font-scale-ratio);
+    @include _heading-scaling($font-scale-ratio);
 }
 
 table {
+    border-collapse: collapse;
     border-spacing: 0;
 }
 
 input[type="submit"], input[type="button"], button, .btn {
-    border-radius: 0;
     display: inline-block;
+    border-radius: 0;
+
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -59,14 +70,30 @@ input[type="submit"], input[type="button"], button, .btn {
 // Wrappers
 // --------------
 
-.block, .block-top, .block-bottom {
-    display: block;
+// @include _containers($include-base-styling: true);
+.container {
     position: static;
+    display: block;
+
+    max-width: $max-container-width;
+    width: 100%;
+
+    padding-right: $default-column-gap;
+    padding-left: $default-column-gap;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@include _grids($include-base-styling: true);
+
+.block, .block-top, .block-bottom {
+    position: static;
+    display: block;
 }
 
 .block {
-    padding-top: $block-padding;
     padding-bottom: $block-padding;
+    padding-top: $block-padding;
 }
 
 .block-top {
@@ -77,133 +104,84 @@ input[type="submit"], input[type="button"], button, .btn {
     padding-bottom: $block-padding;
 }
 
-%containers {
-    display: block;
-    position: static;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: $max-container-width;
-    // padding-left: $default-column-gap;
-    // padding-right: $default-column-gap;
-    width: 100%;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
-@include containers($extend: '%containers');
-
 .clear {
     &:after {
+        display: table;
         content: " ";
         clear: both;
-        display: table;
     }
-}
-
-%grid {
-    @extend .clear;
-
-    display: block;
-    position: static;
-    padding-left: 0;
-    padding-right: 0;
-    list-style-type: none;
-}
-
-@include grids($extend: '%grid');
-
-.fx-grid {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    flex-direction: row;
-    -ms-flex-wrap: wrap;
-    -webkit-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -webkit-justify-content: flex-start;
-    justify-content: flex-start;
-
-    &:after {
-        content: none;
-        visibility: visible;
-        height: auto;
-        clear: none;
-    }
-}
-
-.fx-line {
-    -ms-flex-wrap: nowrap;
-    -webkit-flex-wrap: nowrap;
-    flex-wrap: nowrap;
 }
 
 // --------------
 // Columns
 // --------------
 
-%cols {
-    float: left;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    padding-left: $default-column-gap;
-    padding-right: $default-column-gap;
-}
+@include _columns($include-base-styling: true);
+@include _column-gaps();
+@include _column-clears();
 
-@include columns($extend: '%cols');
-
-@include col-clearfixes();
-
-@if $max-auto-columns > 1 {
-    .col-a {
-        @extend %cols;
-    }
-
-    * {
-        > .col-a {
-            width: 100%;
-            flex-grow: 1;
-        }
-        @for $i from 2 through $max-auto-columns {
-            > .col-a:nth-last-child(#{$i}):first-child, > .col-a:nth-last-child(#{$i}):first-child ~ .col-a {
-                width: 100% / $i;
-            }
-        }
-    }
-}
+// @if not empty($responsivity) {
+//     @include above(nth(map-keys(sort-by-columns($responsivity, breakpoint, 'descending')), 1)) {
+//         @include _auto-columns();
+//     }
+// }
+// @else {
+//     @include _auto-columns();
+// }
 
 // --------------
 // Helpers
 // --------------
 
-@include floats();
+@include _floats();
+@include _visibility-classes();
 
-@include visibility-classes();
-
-%noMarginTop {
+%no-margin-top {
     margin-top: 0;
 }
 
-%noMarginBottom {
+%no-margin-bottom {
     margin-bottom: 0;
 }
 
 @each $tag in h1, h2, h3, h4, h5, h6, p, span, strong, ul, ol, hr, del, ins, table, sub, sup {
     .textual > #{$tag}:first-child, .rtextual #{$tag}:first-child, .textual-top > #{$tag}:first-child, .rtextual-top #{$tag}:first-child {
-        @extend %noMarginTop;
+        @extend %no-margin-top;
     }
     .textual > #{$tag}:last-child, .rtextual #{$tag}:last-child, .textual-bottom > #{$tag}:last-child, .rtextual-bottom #{$tag}:last-child {
-        @extend %noMarginBottom;
+        @extend %no-margin-bottom;
+    }
+}
+
+.rtrim-top, .rtrim {
+    :first-child {
+        @extend %no-margin-top;
+    }
+}
+
+.rtrim-bottom, .rtrim {
+    :last-child {
+        @extend %no-margin-bottom;
+    }
+}
+
+.trim-top, .trim {
+    > :first-child {
+        @extend %no-margin-top;
+    }
+}
+
+.trim-bottom, .trim {
+    > :last-child {
+        @extend %no-margin-bottom;
     }
 }
 
 .bg-cover {
-    background-repeat: no-repeat;
     background-position: center center;
+    background-repeat: no-repeat;
     background-size: 100% 100%;
+
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -212,55 +190,69 @@ input[type="submit"], input[type="button"], button, .btn {
 
 .overlay {
     position: absolute;
-    top: 0;
-    right: 0;
+
     bottom: 0;
+    right: 0;
     left: 0;
+    top: 0;
+}
+
+.inner-overlay {
+    position: absolute;
+
+    right: $default-column-gap;
+    left: $default-column-gap;
+    bottom: 0;
+    top: 0;
 }
 
 .rel {
     position: relative;
 }
 
-// .abs-vctr {
-//
-// }
-//
-// .abs-hctr {
-//     position: absolute;
-//     left: 0;
-//     right: 0;
-//     margin-left: auto;
-//     margin-right: auto;
-// }
-//
-// .abs-ctr {
-//     @extend .abs-vctr;
-//     @extend .abs-hctr;
-// }
+.rel-height {
+    position: relative;
+    display: block;
+
+    &:before {
+        padding-bottom: $default-rel-height;
+        display: block;
+        content: ' ';
+    }
+
+    > * {
+        @extend .overlay;
+    }
+}
+
+.round {
+    border-radius: 99999px;
+}
 
 // --------------
 // Media queries
 // --------------
 
-@if map-empty($responsivity) == false {
-    // TODO: You know what
-    @if $max-container-width > calculate-breakpoint-px(map-nth($responsivity, 0, true))
-        and ($container-jumps or map-get(map-nth($responsivity, 0), 'container-jump'))
-        and map-get(map-nth($responsivity, 0), 'container-jump') != false {
-        @include media-query-down($max-container-width + $scrollbar-width) {
-            [class^="container"] {
-                max-width: map-get(map-nth($responsivity, 0), 'breakpoint');
-            }
-        }
-    }
-}
+$sorted-responsivity: sort-by-columns($responsivity, breakpoint, 'descending');
 
-@each $key, $item in $responsivity {
-    @include media-query-down($key) {
-        @if ($container-jumps or map-get($item, 'container-jump')) and map-get($item, 'container-jump') != false and map-after($responsivity, $key) {
-            [class^="container"] {
-                max-width: map-get(map-after($responsivity, $key), 'breakpoint');
+@each $char in map-keys($sorted-responsivity) {
+    $item: _get-transformed-breakpoint-item($char);
+
+    // If this item is a container jump set the container width to the
+    // container width of the next item
+    @if map-get($item, 'container-jump') and map-after($sorted-responsivity, $char) {
+        $followup-item: _get-transformed-breakpoint-item(map-after($sorted-responsivity, $char, true));
+        $item: map-set($item, 'container-width', map-get($followup-item, 'container-width'));
+    }
+
+    // @include media-query($char, map-after($sorted-responsivity, $char, true)) {
+    //     @include _auto-columns($char);
+    // }
+
+    @include below($char) {
+        [class^="container"], [class*=" container"] {
+            &:not(.no-jump) {
+                max-width: map-get($item, 'container-width');
             }
         }
 
@@ -272,15 +264,17 @@ input[type="submit"], input[type="button"], button, .btn {
             }
 
             @if map-get($item, 'font-scale-ratio') {
-                @include heading-scaling(map-get($item, 'font-scale-ratio'));
+                @include _heading-scaling(map-get($item, 'font-scale-ratio'));
             }
         }
 
-        @include floats($key);
-        @include containers($key);
-        @include columns($key);
-        @include col-clearfixes($key);
-        @include visibility-classes($key);
+        @include _floats($char);
+        // @include _containers($char);
+        @include _grids($char);
+        @include _columns($char);
+        @include _column-gaps($char);
+        @include _column-clears($char);
+        @include _visibility-classes($char);
     }
 }
 

@@ -1,0 +1,317 @@
+// Unused for the time being because I don't think it's necessary or logical to
+// have containers with varying gap sizes.
+@mixin _containers($prefix: '', $generate-no-jump: true, $include-base-styling: false) {
+    @if $include-base-styling {
+        %containers {
+            display: block;
+            position: static;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: $max-container-width;
+            width: 100%;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+    }
+
+    @each $item in _get_column_gap_data() {
+        .#{$prefix}container#{strip-unit(map-get($item, 'width'))} {
+            @if $include-base-styling {
+                @extend %containers;
+            }
+
+            padding-left: map-get($item, 'width');
+            padding-right: map-get($item, 'width');
+
+        }
+
+        @if map-get($item, 'is-default') {
+            .#{$prefix}container {
+                @extend .#{$prefix}container#{strip-unit(map-get($item, 'width'))};
+            }
+        }
+    }
+
+    @if $generate-no-jump {
+        [class^="container"], [class*=" container"] {
+            &.#{$prefix}no-jump {
+                max-width: $max-container-width;
+            }
+        }
+    }
+}
+
+@mixin _fx-grid-properties() {
+    display: -webkit-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -moz-box;
+    display: flex;
+
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+
+    flex-direction: row;
+
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+
+    &.backwards {
+        flex-direction: row-reverse;
+        -webkit-justify-content: flex-end;
+        justify-content: flex-end;
+    }
+}
+
+@mixin _grids($prefix: '', $include-base-styling: false) {
+    @if $include-base-styling {
+        .grid {
+            list-style-type: none;
+            position: static;
+            display: block;
+
+            padding-right: 0;
+            padding-left: 0;
+
+            &:after {
+                display: table;
+                content: " ";
+                clear: both;
+            }
+
+            @if $flex-by-default {
+                &:not(.no-fx) {
+                    @include _fx-grid-properties();
+                }
+            }
+            @else {
+                &.fx {
+                    @include _fx-grid-properties();
+                }
+            }
+        }
+
+        [class^="col-"], [class*=" col-"], [class^="container"], [class*=" container"] {
+            .grid {
+                margin-left: #{0 - $default-column-gap};
+                margin-right: #{0 - $default-column-gap};
+            }
+        }
+    }
+
+    @each $item in _get_column_gap_data() {
+        .#{$prefix}colgap-#{strip-unit(map-get($item, 'width'))} {
+            [class^="col-"], [class*=" col-"] {
+                padding-right: map-get($item, 'width');
+                padding-left: map-get($item, 'width');
+            }
+
+            .inner-overlay {
+                right: map-get($item, 'width');
+                left: map-get($item, 'width');
+            }
+        }
+
+        [class^="col-"], [class*=" col-"], [class^="container"], [class*=" container"] {
+            .#{$prefix}colgap-#{strip-unit(map-get($item, 'width'))} {
+                margin-right: #{0 - map-get($item, 'width')};
+                margin-left: #{0 - map-get($item, 'width')};
+            }
+        }
+
+        @if map-get($item, 'is-default') {
+            .#{$prefix}colgap-default {
+                @extend .#{$prefix}colgap-#{strip-unit(map-get($item, 'width'))};
+            }
+        }
+    }
+
+    // TODO: Find a way to refactor this to something more DRY
+    @each $item in _get_row_gap_data() {
+        .#{$prefix}rowgap-#{strip-unit(map-get($item, 'width'))} {
+            [class^="col-"], [class*=" col-"] {
+                padding-bottom: map-get($item, 'width');
+                padding-top: map-get($item, 'width');
+            }
+
+            .inner-overlay {
+                top: map-get($item, 'width');
+                bottom: map-get($item, 'width');
+            }
+        }
+
+        .#{$prefix}rowgap-#{strip-unit(map-get($item, 'width'))}.sink {
+            margin-top: #{0 - map-get($item, 'width')};
+            margin-bottom: #{0 - map-get($item, 'width')};
+        }
+
+        @if map-get($item, 'is-default') {
+            .#{$prefix}rowgap-default {
+                @extend .#{$prefix}rowgap-#{strip-unit(map-get($item, 'width'))};
+            }
+        }
+    }
+}
+
+@mixin _columns($prefix: '', $include-base-styling: false) {
+    @if $include-base-styling {
+        [class^="col-"], [class*=" col-"] {
+            padding-right: $default-column-gap;
+            padding-left: $default-column-gap;
+            flex-shrink: 0;
+            flex-grow: 0;
+            float: left;
+        }
+        .backwards {
+            [class^="col-"], [class*=" col-"] {
+                float: right;
+            }
+        }
+    }
+
+    .#{$prefix}col-g {
+        -ms-flex-preferred-size: unset;
+        flex-basis: unset;
+        width: auto;
+    }
+
+    @each $fraction in _get_column_fraction_data() {
+        .#{$prefix}col-#{map-get($fraction, 'fraction')} {
+            @if map-get($fraction, 'same-as') != null {
+                @extend .#{$prefix}col-#{map-get($fraction, 'same-as')};
+            }
+            @else {
+                -ms-flex-preferred-size: unset;
+                flex-basis: map-get($fraction, 'width');
+                width: map-get($fraction, 'width');
+            }
+        }
+    }
+
+    .#{$prefix}col-f {
+        @extend .#{$prefix}col-1 !optional;
+    }
+}
+
+
+// Unused for the time being because these have become absolutely disasterous
+// due to a large amount of problems and fallback limitations
+@mixin _auto-columns($responsivity-key: null) {
+    @if $max-auto-columns > 1 {
+        // Create for current media range
+        .#{$responsivity-key}col-a {
+            width: 100%;
+            flex-grow: 1;
+
+            @for $i from 2 through $max-auto-columns {
+                &:nth-last-child(#{$i}):first-child, &:nth-last-child(#{$i}):first-child ~ .#{$responsivity-key}col-a {
+                    width: decimal-round(100% / $i, 4);
+                }
+            }
+        }
+
+        @if $responsivity-key != null {
+            $upper-keys: ('');
+            $up-until-keys: ();
+            $last-key-found: false;
+
+            @each $key in map-keys(sort-by-columns($responsivity, breakpoint, 'descending')) {
+                @if not $last-key-found {
+                    @if $key == $responsivity-key {
+                        $last-key-found: true;
+                    }
+                    @else {
+                        $upper-keys: append($upper-keys, $key);
+                    }
+
+                    $up-until-keys: append($upper-keys, $key);
+                }
+            }
+
+            // Reapply for other col-a classes that were parsed at bigger media
+            // queries, as long as they arent overwritten by another col- class
+            // this unfortunate bit of code has to be applied because the specifity
+            // of col-a and other col- types don't match, at all
+            // TODO: Decide whether or not this is the way to go
+            @each $key in $upper-keys {
+                $key-range: ();
+                $cur-key-found: false;
+
+                @each $j in reverse($up-until-keys) {
+                    @if $j == $key {
+                        $cur-key-found: true;
+                    }
+
+                    @if not $cur-key-found {
+                        $key-range: append($key-range, $j);
+                    }
+                }
+
+                .#{$key}col-a {
+                    &#{to-selector($key-range, false, ':not([class^="', 'col-"])')}#{to-selector($key-range, false, ':not([class*=" ', 'col-"])')} {
+                        @for $i from 2 through $max-auto-columns {
+                            &:nth-last-child(#{$i}):first-child, &:nth-last-child(#{$i}):first-child ~ .#{$key}col-a {
+                                width: decimal-round(100% / $i, 4);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@mixin _column-gaps($prefix: '') {
+    @each $fraction in _get_column_fraction_data() {
+        @if map-get($fraction, 'width') < 100% {
+            .#{$prefix}gapl-#{map-get($fraction, 'fraction')} {
+                @if map-get($fraction, 'same-as') != null {
+                    @extend .#{$prefix}gapl-#{map-get($fraction, 'same-as')};
+                }
+                @else {
+                    margin-left: map-get($fraction, 'width');
+                }
+            }
+            .#{$prefix}gapr-#{map-get($fraction, 'fraction')} {
+                @if map-get($fraction, 'same-as') != null {
+                    @extend .#{$prefix}gapr-#{map-get($fraction, 'same-as')};
+                }
+                @else {
+                    margin-right: map-get($fraction, 'width');
+                }
+            }
+        }
+    }
+
+    .#{$prefix}gapl-none {
+        margin-left: 0;
+    }
+
+    .#{$prefix}gapr-none {
+        margin-right: 0;
+    }
+}
+
+@mixin _column-clears($prefix: '') {
+    .#{$prefix}noclear {
+        > * {
+            &:nth-child(1n) {
+                clear: none;
+            }
+        }
+    }
+    @each $i in if(length($column-clear-fixes) == 1, range(2, $column-clear-fixes), $column-clear-fixes) {
+        .#{$prefix}clear-#{$i} {
+            > * {
+                &:nth-child(1n) {
+                    clear: none;
+                }
+                &:nth-child(#{$i}n+1) {
+                    clear: both;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,63 @@
+@function _is-breakpoint-char($char) {
+    @return map-has-key($responsivity, $char);
+}
+
+// @function get-followup-breakpoint($key, $get-key: false) {
+//     @if map-has-key($responsivity, $key) == false {
+//         @error "#{$key} not found in $responsivity";
+//     }
+//
+//     // TODO Sort by width
+//     $responsive-keys: map-keys($responsivity);
+//
+//     @if map-after($responsive-keys, $key) == null {
+//         @return null;
+//     }
+//
+//     @if $get-key {
+//         @return map-after($responsive-keys, $key, true);
+//     }
+//
+//     @return _get-transformed-breakpoint-item(map-after($responsive-keys, $key));
+// }
+//
+// @function has-followup-breakpoint($key) {
+//     @if map-has-key($responsivity, $key) == false {
+//         @error "#{$key} not found in $responsivity";
+//     }
+//
+//     // TODO Sort by width
+//
+//     @return map-after($responsivity, $key) != null;
+// }
+//
+// @function get-breakpoint-data($key) {
+//     @if map-has-key($responsivity, $key) == false {
+//         @error "#{$key} not found in $responsivity";
+//     }
+//
+//     @return map-merge((
+//         container-width: 100%,
+//         container-jump: $container-jumps
+//     ), map-get($responsivity, $key));
+// }
+
+@function _get-transformed-breakpoint-item($char) {
+    @if map-has-key($responsivity, $char) == false {
+        @error "#{$char} not found in $responsivity";
+    }
+
+    $item: map-merge((
+        'container-width': 100%,
+        'container-jump': $container-jumps
+    ), map-get($responsivity, $char));
+
+    @if unit(map-get($item, 'container-width')) == '%' {
+        $item: map-set($item, 'container-width', round(map-get($item, 'breakpoint') * (strip-unit(map-get($item, 'container-width')) / 100)));
+    }
+    @else if unit(map-get($item, 'container-width')) == 'px' and map-get($item, 'container-width') < 0px {
+        $item: map-set($item, 'container-width', round(map-get($item, 'breakpoint') + map-get($item, 'container-width')));
+    }
+
+    @return $item;
+}

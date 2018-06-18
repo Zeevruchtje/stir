@@ -1,0 +1,20 @@
+@mixin _floats($prefix: '') {
+    .#{$prefix}left {
+        float: left;
+    }
+    .#{$prefix}right {
+        float: right;
+    }
+    .#{$prefix}nofloat {
+        float: none;
+    }
+}
+
+@mixin _visibility-classes($prefix: '') {
+    .#{$prefix}hidden {
+        display: none;
+    }
+    .#{$prefix}visible {
+        display: block;
+    }
+}

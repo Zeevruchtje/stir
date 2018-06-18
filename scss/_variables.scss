@@ -1,0 +1,168 @@
+//
+//  List of all variables used by Stir
+//
+//  Modify these settings to your liking, you'll need a sass parser for this to
+//  work. More details about this can be found at https://stir.rickvanzee.nl
+//
+//  it's recommended to create your own scss / sass file and extend from this
+//  one but modifying this file directly is fine too.
+//
+
+
+
+// #########################
+// ##    BASE SETTINGS    ##
+// #########################
+
+
+
+//  The maximum width for the container
+//
+//  Value: px
+$max-container-width: 1024px !default;
+
+//  Whether or not grids and columns are flexbox by default. When this value
+//  is true the class .no-fx will be generated, when it's false the .fx class
+//  will be generated.
+//
+//  Value: bool
+$flex-by-default: true !default;
+
+//  The amount of columns to generate, it's best to only generate the columns
+//  you need. This number corresponds to the denominators of the columns.
+//
+//  Example:
+//  When this value is 6 fractions with a denominator from 1 to 6 will generate
+//  columns with all the necessary numerators. Like col-2 and col-36 but not
+//  col-7 because the denominator is higher than 6.
+//
+//  Value: int or list of ints
+$columns: 6 !default;
+
+//  The maximum amount of columns you can clear with the .clear- class
+//
+//  Example:
+//  you wouldn't be able to use the class .clear-7 when this value is 6
+//
+//  Value: int
+$column-clear-fixes: 6 !default;
+
+//  Whether or not to generate columns that will have the same width as another
+//  column with a lower fraction.
+//
+//  Example:
+//  When this value is false col-46 won't be generated because it has the same
+//  width as col-23.
+//
+//  Value: bool
+$generate-duplicate-columns: false !default;
+
+//  The default gap between columns and on the left and right side of the
+//  container
+//
+//  Value: px
+$default-column-gap: 14px !default;
+
+//  Any other gaps between columns and on the left and right side of the
+//  container you need. Can be an empty list if you don't want any
+//
+//  Value: list of px
+$column-gaps: 0px 8px 20px !default;
+
+//  The default vertical gap between column rows
+//
+//  Value: px
+$default-row-gap: 0px !default;
+
+//  Possible vertical gaps between column rows
+//
+//  Value: list of px
+$row-gaps: 14px 20px !default;
+
+//  The top and bottom padding of the block classes.
+//
+//  Value: px
+$block-padding: 80px !default;
+
+//  The height of the .rel-height class relative to the element width.
+//
+//  Example:
+//  Setting this variable to 150% will make elements with the .rel-height class
+//  have a width height ratio of 2:3.
+//
+//  Value: %
+$default-rel-height: 100% !default;
+
+
+
+// ########################
+// ##    RESPONSIVITY    ##
+// ########################
+
+
+
+//  Whether or not to use container jumps by default.
+//  Overridden by the key container-jump in the $responsivity map
+$container-jumps: true !default;
+
+//  The width of the scrollbar, this value is added to the width of each
+//  breakpoint. This is to prevent the container from overflowing when nearing a
+//  breakpoint, this happens because browsers add the width of the scrollbar to
+//  the viewport.
+//
+//  Value: px
+$scrollbar-width: 18px !default;
+
+//  A multidimensional map containing data for the media queries / breakpoints.
+//  Detailed explanation at https://stir.rickvanzee.nl/#var-responsivity
+//
+//  Value: map
+$responsivity: (
+    l: (
+        breakpoint: $max-container-width + 40px,
+        container-width: -40px
+    ),
+    m: (
+        breakpoint: 920px,
+        container-width: -20px
+    ),
+    s: (
+        breakpoint: 768px,
+        container-jump: false
+    ),
+    t: (
+        breakpoint: 480px,
+        container-jump: false
+    )
+) !default;
+
+
+
+// ######################
+// ##    TYPOGRAPHY    ##
+// ######################
+
+
+
+//  Whether or not to let Stir set up font sizes and font scaling.
+//  Must be true in order for any font related functionalities to work.
+//
+//  Value: bool
+$enable-typography: false !default;
+
+//  The default font size for small text elements, like paragraphs.
+//
+//  Value: px
+$default-font-size: 16px !default;
+
+//  The size of the headings h1 - h6 relative to the default font size. The size
+//  of h6 will become: default-font-size * ( $font-scale-ratio ^ 2 ) h5 will be:
+//  default-font-size * ( $font-scale-ratio ^ 3 ) and so on...
+//
+//  Value: float
+$font-scale-ratio: 1.2 !default;
+
+//  The unit for font-sizes
+//
+//  Value: em or rem
+$font-size-unit: rem !default;

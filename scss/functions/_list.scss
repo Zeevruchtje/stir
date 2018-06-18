@@ -1,0 +1,265 @@
+@function has-value($needle, $haystack) {
+    @each $item in $haystack {
+        @if $item == $needle {
+            @return true;
+        }
+    }
+
+    @return false;
+}
+
+@function map-nth($map, $target, $get-key: false) {
+    @if type-of($map) != 'map' {
+        @error "$map is not a map";
+    }
+
+    @if length($map) == 0 {
+        @return null;
+    }
+
+    @return nth(nth($map, $target), if($get-key, 1, 2));
+}
+
+@function is-map-first($map, $key) {
+    @if type-of($map) != 'map' {
+        @error "$map is not a map";
+    }
+
+    @if length($map) == 0 {
+        @return false;
+    }
+
+    @return map-nth($map, 1, true) == $key;
+}
+
+@function is-map-last($map, $key) {
+    @return is-map-first(reverse($map), $key);
+}
+
+// @function is-first($list, $key) {
+//     @if type-of($list) == 'map' {
+//         @return is-map-first($list, $key);
+//     }
+//
+//     @if type-of($list) != 'list' {
+//         @error "$list must either be a map or a list";
+//     }
+//
+//     // Not sure why you would use this for a list but hey whatever
+//     @return nth($list, 1) == $key;
+// }
+
+@function list-to-map($list) {
+    @if type-of($list) != 'list' {
+        @error "$list is not a list";
+    }
+
+    $map: ();
+
+    @if length($list) > 0 {
+        // Dealing with arrays that start at 1 has claimed a piece of my soul
+        // and cast it into eternal darkness.
+        @for $i from 1 through length($list) {
+            $map: map-set($map, $i, nth($list, $i));
+        }
+    }
+
+    @return $map;
+}
+
+@function map-to-list($map, $separator: auto, $bracketed: false) {
+    $list: if($bracketed, [], ());
+
+    @each $key, $item in $map {
+        $list: append($list, $item, $separator);
+    }
+
+    @return $list;
+}
+
+@function _sort-compare($a, $b, $order) {
+    @if $order == 'ascending' {
+        @return $a > $b;
+    }
+    @else if $order == 'descending' {
+        @return $a < $b;
+    }
+
+    @error "Unknown order type: #{$order}";
+}
+
+@function _sort-map($map, $order: 'ascending') {
+    $smaller: ();
+    $larger: ();
+    $equal: ();
+
+    @if length($map) > 1 {
+        $center: map-nth($map, ceil(length($map) / 2));
+
+        @each $key, $item in $map {
+            @if $item == $center {
+                $equal: map_merge($equal, ($key: $item));
+            }
+            @else if _sort-compare($item, $center, $order) {
+                $larger: map_merge($larger, ($key: $item));
+            }
+            @else {
+                $smaller: map_merge($smaller, ($key: $item));
+            }
+        }
+
+        @return map_merge(map_merge(sort($smaller, $order), $equal), sort($larger, $order));
+    }
+
+    @return $map;
+}
+
+@function sort($list, $order: 'ascending') {
+    $map: if(type-of($list) == 'list', list-to-map($list), $list);
+
+    $result: _sort-map($map, $order);
+
+    @if type-of($list) == 'list' {
+        @return map-to-list($result, list-separator($list), is_bracketed($list));
+    }
+
+    @return $result;
+}
+
+@function map-before($map, $target-key, $get-key: false) {
+    @if type-of($map) != 'map' {
+        @error "$map is not a map";
+    }
+
+    $map: map-reverse($map);
+
+    @return map-after($map, $target-key, $get-key);
+}
+
+@function map-after($map, $target-key, $get-key: false) {
+    @if type-of($map) != 'map' {
+        @error "$map is not a map";
+    }
+
+    $found: false;
+
+    @each $key, $item in $map {
+        @if $found {
+            @if $get-key {
+                @return $key;
+            }
+
+            @return $item;
+        }
+        @else if $key == $target-key {
+            $found: true;
+        }
+    }
+
+    @return null;
+}
+
+@function _map-reverse($map) {
+    @if type-of($map) != 'map' {
+        @error "$map is not a map";
+    }
+
+    $result: ();
+    $keys: map-keys($map);
+
+    @for $i from length($keys) through 1 {
+        $key: nth($keys, $i);
+        $result: map-set($result, $key, map-get($map, $key));
+    }
+
+    @return $result;
+}
+
+@function reverse($list) {
+    @if(type-of($list) == 'map') {
+        @return _map-reverse($list);
+    }
+
+    $result: if(is_bracketed($list), [], ());
+    $separator: list-separator($list);
+
+    @for $i from length($list) through 1 {
+        $result: append($result, nth($list, $i), $separator);
+    }
+
+    @return $result;
+}
+
+@function empty($list) {
+    @return length($list) == 0;
+}
+
+@function range($from, $to) {
+    $list: ();
+
+    @for $i from $from through $to {
+        $list: append($list, $i);
+    }
+
+    @return $list;
+}
+
+@function to-selector($list, $comma-separated: true, $before: '.', $after: '') {
+    @if type-of($list) == 'map' {
+        $list: map-to-list($list);
+    }
+
+    $return: '';
+
+    @each $val in $list {
+        $return: $return + $before + $val + $after + if($comma-separated, ',', '');
+    }
+
+    @return $return;
+}
+
+@function map-set($map, $new-key, $value) {
+    @return map-merge($map, (
+        $new-key: $value
+    ));
+}
+
+@function _sort-map-by-columns($map, $columns, $order: 'ascending') {
+    $flat-map: ();
+    $result: ();
+
+    @each $key, $val in $map {
+        $target: $val;
+
+        @each $column in $columns {
+            @if type-of($target) == 'list' {
+                $target: nth($target, $column);
+            }
+            @else {
+                $target: map-get($target, $column);
+            }
+        }
+
+        $flat-map: map-set($flat-map, $key, $target);
+    }
+
+    $flat-map: sort($flat-map, $order);
+
+    @each $key, $item in $flat-map {
+        $result: map-set($result, $key, map-get($map, $key));
+    }
+
+    @return $result;
+}
+
+@function sort-by-columns($list, $columns, $order: 'ascending') {
+    $map: if(type-of($list) == 'list', list-to-map($list), $list);
+
+    $result: _sort-map-by-columns($map, $columns, $order);
+
+    @if type-of($list) == 'list' {
+        @return map-to-list($result, list-separator($list), is_bracketed($list));
+    }
+
+    @return $result;
+}
